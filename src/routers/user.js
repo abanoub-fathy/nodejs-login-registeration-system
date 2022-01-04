@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
+const passport = require("passport");
+const auth = require("../config/auth");
 
 // user model
 const User = require("../models/user");
@@ -63,6 +65,22 @@ router.post("/register", async (req, res) => {
   await newUser.save();
 
   req.flash("success_msg", "You are registered and can login");
+  res.redirect("/users/login");
+});
+
+// login handler
+router.post("/login", (req, res, next) => {
+  passport.authenticate("local", {
+    successRedirect: "/dashboard",
+    failureRedirect: "/users/login",
+    failureFlash: true,
+  })(req, res, next);
+});
+
+// logout handler
+router.get("/logout", auth, (req, res) => {
+  req.logOut();
+  req.flash("success_msg", "You are logged out");
   res.redirect("/users/login");
 });
 
